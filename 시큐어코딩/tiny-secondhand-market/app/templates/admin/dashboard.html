@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}관리자 대시보드 - Tiny Market{% endblock %}
+{% block content %}
+<h2>관리자 대시보드</h2>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num">{{ stats.user_count }}</div>
+    <div class="stat-label">전체 회원</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ stats.product_count }}</div>
+    <div class="stat-label">전체 상품</div>
+  </div>
+  <div class="stat-card stat-warning">
+    <div class="stat-num">{{ stats.pending_reports }}</div>
+    <div class="stat-label">대기중인 신고</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ stats.blocked_products }}</div>
+    <div class="stat-label">차단된 상품</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ stats.dormant_users }}</div>
+    <div class="stat-label">휴면 사용자</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ stats.banned_users }}</div>
+    <div class="stat-label">정지 사용자</div>
+  </div>
+</div>
+
+<div style="margin-top:24px; display:flex; gap:10px;">
+  <a href="{{ url_for('admin.report_queue') }}" class="btn btn-inline">신고 큐 처리하기</a>
+  <a href="{{ url_for('admin.logs') }}" class="btn btn-secondary btn-inline">관리자 로그 보기</a>
+</div>
+{% endblock %}

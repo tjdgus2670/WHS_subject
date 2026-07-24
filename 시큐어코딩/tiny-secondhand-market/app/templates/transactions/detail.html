@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}거래 상세 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>{{ tx.product.title if tx.product else "(삭제된 상품)" }}</h2>
+  <p class="text-muted">거래번호 #{{ tx.id }} · {{ "{:,}".format(tx.amount) }}원</p>
+
+  <span class="badge">{{ tx.status }}</span>
+
+  <table class="log-table" style="margin-top:16px;">
+    <tr><th>구매자</th><td>{{ tx.buyer.nickname }}</td></tr>
+    <tr><th>판매자</th><td>{{ tx.seller.nickname }}</td></tr>
+    <tr><th>결제번호(Mock)</th><td>{% if tx.amount == 0 %}무료나눔 (결제 없음){% else %}{{ tx.mock_payment_id or "-" }}{% endif %}</td></tr>
+    <tr><th>생성일</th><td>{{ tx.created_at.strftime("%Y-%m-%d %H:%M") }}</td></tr>
+  </table>
+
+  <div class="detail-actions" style="margin-top:16px;">
+    {% if tx.status == "paid" and current_user.id == tx.seller_id %}
+      <form method="POST" action="{{ url_for('transactions.transition', transaction_id=tx.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="target_status" value="in_progress">
+        <button type="submit" class="btn">거래 시작(직거래 진행)</button>
+      </form>
+    {% endif %}
+
+    {% if tx.status == "in_progress" and current_user.id == tx.buyer_id %}
+      <form method="POST" action="{{ url_for('transactions.transition', transaction_id=tx.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="target_status" value="completed">
+        <button type="submit" class="btn">거래 완료 확정</button>
+      </form>
+    {% endif %}
+
+    {% if tx.status in ("pending", "paid", "in_progress") %}
+      <form method="POST" action="{{ url_for('transactions.transition', transaction_id=tx.id) }}"
+            onsubmit="return confirm('거래를 취소하시겠습니까?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="target_status" value="canceled">
+        <button type="submit" class="btn btn-danger">거래 취소</button>
+      </form>
+    {% endif %}
+
+    {% if tx.status == "pending" and current_user.id == tx.buyer_id %}
+      <a href="{{ url_for('transactions.pay', transaction_id=tx.id) }}" class="btn btn-secondary">결제 계속하기</a>
+    {% endif %}
+
+    {% if tx.status == "completed" %}
+      {% if my_review %}
+        <span class="text-muted" style="align-self:center;">이미 후기를 작성했습니다.</span>
+      {% else %}
+        <a href="{{ url_for('transactions.review', transaction_id=tx.id) }}" class="btn">후기 남기기</a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

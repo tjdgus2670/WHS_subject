@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}결제하기 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>결제하기</h2>
+  <p class="text-muted" style="margin-top:-8px;">{{ tx.product.title }} · {{ "{:,}".format(tx.amount) }}원</p>
+
+  <div class="flash flash-info" style="font-size:0.82rem;">
+    이 결제는 실제 카드사와 통신하지 않는 Mock Payment입니다. 카드번호는 서버에 저장되지 않습니다.
+    테스트 목적으로 카드번호가 <strong>0000</strong>으로 끝나면 일부러 결제가 거절되도록 되어 있습니다.
+  </div>
+
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.card_number.label }}
+      {{ form.card_number(type="text", placeholder="0000 0000 0000 1234") }}
+      {% for error in form.card_number.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.expiry.label }}
+      {{ form.expiry(type="text", placeholder="12/28") }}
+      {% for error in form.expiry.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.cvc.label }}
+      {{ form.cvc(type="text", placeholder="123") }}
+      {% for error in form.cvc.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+    {{ form.submit(class="btn") }}
+  </form>
+</div>
+{% endblock %}

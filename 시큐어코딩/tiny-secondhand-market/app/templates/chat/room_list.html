@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}채팅 목록 - Tiny Market{% endblock %}
+{% block content %}
+<h2>채팅 목록</h2>
+{% if rooms %}
+<div class="room-list">
+  {% for room in rooms %}
+    {% set other = room.seller if room.buyer_id == current_user.id else room.buyer %}
+    <a href="{{ url_for('chat.room_detail', room_id=room.id) }}" class="room-item">
+      <div class="room-item-title">{{ other.nickname }}</div>
+      <div class="room-item-sub text-muted">{{ room.product.title if room.product else "삭제된 상품" }}</div>
+    </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">아직 채팅방이 없습니다. 상품 상세페이지에서 채팅을 시작해보세요.</div>
+{% endif %}
+{% endblock %}

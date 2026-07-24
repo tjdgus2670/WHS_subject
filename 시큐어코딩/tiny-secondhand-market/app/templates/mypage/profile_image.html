@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}프로필 사진 변경 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>프로필 사진 변경</h2>
+
+  {% if current_user.profile_image %}
+    <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_image) }}"
+         alt="" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin-bottom:16px;">
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+      <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required>
+      <div class="text-muted" style="font-size:0.82rem; margin-top:4px;">
+        JPG/JPEG/PNG/WEBP, 5MB 이하. 자동으로 정사각형으로 잘립니다.
+      </div>
+    </div>
+    <button type="submit" class="btn">업로드</button>
+  </form>
+
+  {% if current_user.profile_image %}
+  <form method="POST" action="{{ url_for('mypage.delete_profile_image') }}" style="margin-top:10px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-danger">사진 삭제</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

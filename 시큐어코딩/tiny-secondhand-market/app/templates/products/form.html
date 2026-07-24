@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == "edit" %}상품 수정{% else %}상품 등록{% endif %} - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>{% if mode == "edit" %}상품 수정{% else %}상품 등록{% endif %}</h2>
+
+  <form method="POST" enctype="multipart/form-data" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.title.label }}
+      {{ form.title(type="text") }}
+      {% for error in form.title.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.description.label }}
+      <textarea name="description" rows="6">{{ form.description.data or "" }}</textarea>
+      {% for error in form.description.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.price.label }}
+      {{ form.price(type="number", min="0", id="price-input") }}
+      {% for error in form.price.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group" style="display:flex; align-items:center; gap:6px;">
+      {{ form.is_free(id="is-free-checkbox") }}
+      {{ form.is_free.label }}
+      <span class="text-muted" style="font-size:0.82rem;">(체크하면 가격이 0원으로 고정됩니다)</span>
+    </div>
+    <script>
+      (function () {
+        var checkbox = document.getElementById("is-free-checkbox");
+        var priceInput = document.getElementById("price-input");
+        if (!checkbox || !priceInput) return;
+
+        function syncPriceField() {
+          if (checkbox.checked) {
+            priceInput.value = "0";
+            priceInput.readOnly = true;
+          } else {
+            priceInput.readOnly = false;
+          }
+        }
+        checkbox.addEventListener("change", syncPriceField);
+        syncPriceField();
+      })();
+    </script>
+
+    <div class="form-group">
+      {{ form.category.label }}
+      {{ form.category() }}
+    </div>
+
+    <div class="form-group">
+      {{ form.condition.label }}
+      {{ form.condition() }}
+    </div>
+
+    {% if mode == "edit" and product.images %}
+    <div class="form-group">
+      <label>등록된 이미지</label>
+      <div class="image-manage-grid">
+        {% for image in product.images %}
+        <div class="image-manage-item">
+          <img src="{{ url_for('static', filename='uploads/products/' + image.filename) }}" alt="">
+          <form method="POST" action="{{ url_for('products.delete_product_image', product_id=product.id, image_id=image.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
+            <button type="submit" class="btn-mini-danger">삭제</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label>{% if mode == "edit" %}이미지 추가{% else %}이미지 (최대 5장){% endif %}</label>
+      <input type="file" name="images" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
+      <div class="text-muted" style="font-size:0.82rem; margin-top:4px;">
+        JPG/JPEG/PNG/WEBP만 업로드 가능, 장당 5MB 이하
+      </div>
+    </div>
+
+    {{ form.submit(class="btn") }}
+  </form>
+
+  {% if mode == "edit" %}
+  <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}"
+        onsubmit="return confirm('정말 삭제하시겠습니까?');" style="margin-top:12px;">
+    <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
+    <button type="submit" class="btn btn-danger">상품 삭제</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

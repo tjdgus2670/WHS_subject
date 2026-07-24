@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}마이페이지 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card profile-card">
+  <div class="profile-head">
+    <div class="profile-avatar">
+      {% if current_user.profile_image %}
+        <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_image) }}" alt="">
+      {% else %}
+        <div class="profile-avatar-empty">{{ current_user.nickname[0] }}</div>
+      {% endif %}
+    </div>
+    <div>
+      <h2 style="margin-bottom:2px;">{{ current_user.nickname }}</h2>
+      <div class="text-muted">
+        {{ current_user.region or "동네 미설정" }} · 매너온도 {{ "%.1f"|format(current_user.trust_score) }}°C
+      </div>
+    </div>
+  </div>
+  <div class="profile-actions">
+    <a href="{{ url_for('mypage.profile_image') }}" class="btn-mini">프로필 사진 변경</a>
+    <a href="{{ url_for('users.profile', user_id=current_user.id) }}" class="btn-mini">공개 프로필 보기</a>
+  </div>
+</div>
+
+<div class="stat-grid" style="margin-top:20px;">
+  <div class="stat-card"><div class="stat-num">{{ stats.product_count }}</div><div class="stat-label">내 상품</div></div>
+  <div class="stat-card"><div class="stat-num">{{ stats.selling_count }}</div><div class="stat-label">판매중</div></div>
+  <div class="stat-card"><div class="stat-num">{{ stats.wish_count }}</div><div class="stat-label">찜한 상품</div></div>
+  <div class="stat-card"><div class="stat-num">{{ stats.active_tx_count }}</div><div class="stat-label">진행중 거래</div></div>
+  <div class="stat-card"><div class="stat-num">{{ stats.blocked_count }}</div><div class="stat-label">차단한 사용자</div></div>
+</div>
+
+<div style="margin-top:24px; display:flex; gap:10px; flex-wrap:wrap;">
+  <a href="{{ url_for('products.wishlist') }}" class="btn-mini">찜목록</a>
+  <a href="{{ url_for('transactions.my_transactions') }}" class="btn-mini">거래내역</a>
+  <a href="{{ url_for('users.blocked_list') }}" class="btn-mini">차단목록</a>
+  <a href="{{ url_for('auth.change_password') }}" class="btn-mini">비밀번호 변경</a>
+</div>
+
+<h3 style="margin-top:28px;">내가 등록한 상품</h3>
+{% if my_products %}
+<div class="product-grid">
+  {% for product in my_products %}
+  <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="product-card">
+    <div class="product-thumb">
+      {% if product.images %}
+        <img src="{{ url_for('static', filename='uploads/products/' + product.images[0].filename) }}" alt="">
+      {% else %}
+        <div class="product-thumb-empty">이미지 없음</div>
+      {% endif %}
+    </div>
+    <div class="product-info">
+      <div class="product-title">{{ product.title }}</div>
+      <div class="product-price">{{ "{:,}".format(product.price) }}원</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">등록한 상품이 없습니다.</div>
+{% endif %}
+{% endblock %}

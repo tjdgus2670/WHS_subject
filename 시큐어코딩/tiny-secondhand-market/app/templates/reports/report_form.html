@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}신고하기 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>신고하기</h2>
+  <p class="text-muted" style="margin-top:-8px; margin-bottom:16px;">{{ target_label }}</p>
+
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.reason.label }}
+      {{ form.reason() }}
+    </div>
+
+    <div class="form-group">
+      {{ form.description.label }}
+      <textarea name="description" rows="4" placeholder="자세한 상황을 알려주시면 검토에 도움이 됩니다.">{{ form.description.data or "" }}</textarea>
+      {% for error in form.description.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      {{ form.submit(class="btn") }}
+      <a href="{{ cancel_url }}" class="btn btn-secondary" style="text-align:center;">취소</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

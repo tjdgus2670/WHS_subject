@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ product.title }} - Tiny Market{% endblock %}
+{% block content %}
+<div class="card">
+  {% if product.status == 'blocked' %}
+    <div class="flash flash-danger">이 상품은 신고 누적으로 차단되어 본인/관리자에게만 보입니다.</div>
+  {% endif %}
+
+  <div class="detail-gallery">
+    {% if product.images %}
+      {% for image in product.images %}
+        <img src="{{ url_for('static', filename='uploads/products/' + image.filename) }}" alt="">
+      {% endfor %}
+    {% else %}
+      <div class="product-thumb-empty">이미지 없음</div>
+    {% endif %}
+  </div>
+
+  <div class="detail-header">
+    <h2>{{ product.title }}</h2>
+    <span class="badge">{{ product.category }}</span>
+    <span class="badge">
+      {% if product.condition == 'new' %}새 상품{% elif product.condition == 'like_new' %}거의 새 것{% else %}사용감 있음{% endif %}
+    </span>
+    {% if product.status == 'reserved' %}<span class="badge">예약중</span>{% endif %}
+    {% if product.status == 'sold' %}<span class="badge">거래완료</span>{% endif %}
+  </div>
+
+  <div class="detail-price">{% if product.price == 0 %}무료나눔{% else %}{{ "{:,}".format(product.price) }}원{% endif %}</div>
+
+  {# 설명은 Jinja2 autoescape 덕분에 <script> 같은 태그가 그대로 텍스트로만 출력된다 (XSS 방지) #}
+  <p class="detail-description">{{ product.description }}</p>
+
+  <div class="detail-meta text-muted">
+    조회 {{ product.view_count }} · 찜 {{ wish_count }} · 등록일 {{ product.created_at.strftime("%Y-%m-%d") }}
+    · 판매자 <a href="{{ url_for('users.profile', user_id=product.seller_id) }}">{{ product.seller.nickname }}</a>
+  </div>
+
+  <div class="detail-actions">
+    {% if current_user.is_authenticated and not is_owner %}
+      <form method="POST" action="{{ url_for('products.toggle_wish', product_id=product.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn {{ 'btn-secondary' if is_wished else '' }}">
+          {{ "찜 취소" if is_wished else "찜하기" }}
+        </button>
+      </form>
+    {% endif %}
+    {% if is_owner %}
+      <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-secondary">수정</a>
+      <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}"
+            onsubmit="return confirm('정말 삭제하시겠습니까?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger">삭제</button>
+      </form>
+    {% elif current_user.is_authenticated %}
+      {% if product.status == "selling" %}
+        <form method="POST" action="{{ url_for('transactions.start_transaction', product_id=product.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn">구매하기</button>
+        </form>
+      {% endif %}
+      <form method="POST" action="{{ url_for('chat.start_room', product_id=product.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-secondary">채팅하기</button>
+      </form>
+      <a href="{{ url_for('reports.report_product', product_id=product.id) }}" class="btn btn-secondary">신고</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn">로그인하고 채팅하기</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

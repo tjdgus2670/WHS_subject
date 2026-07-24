@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}후기 작성 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>거래 후기</h2>
+  <p class="text-muted" style="margin-top:-8px;">{{ tx.product.title if tx.product else "" }}</p>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.rating.label }}
+      {{ form.rating(type="number", min="1", max="5") }}
+      {% for error in form.rating.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.content.label }}
+      <textarea name="content" rows="4" placeholder="거래는 어떠셨나요?">{{ form.content.data or "" }}</textarea>
+      {% for error in form.content.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+    {{ form.submit(class="btn") }}
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}신고 큐 - Tiny Market{% endblock %}
+{% block content %}
+<h2>신고 큐 ({{ items|length }}건 대기중)</h2>
+
+{% if items %}
+<div class="report-list">
+  {% for item in items %}
+  <div class="report-item">
+    <div class="report-item-head">
+      <span class="badge">{{ "상품" if item.report.target_type == "product" else "사용자" }}</span>
+      <strong>{{ item.label }}</strong>
+      {% if item.target_status %}
+        <span class="text-muted">현재 상태: {{ item.target_status }}</span>
+      {% endif %}
+    </div>
+    <div class="report-item-body text-muted">
+      사유: {{ item.report.reason }}
+      {% if item.report.description %} · {{ item.report.description }}{% endif %}
+      · {{ item.report.created_at.strftime("%Y-%m-%d %H:%M") }}
+    </div>
+
+    <div class="report-actions">
+      <form method="POST" action="{{ url_for('admin.dismiss_report', report_id=item.report.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-mini">기각</button>
+      </form>
+
+      {% if item.target %}
+        {% if item.report.target_type == "product" %}
+          {% if item.target_status != "blocked" %}
+            <form method="POST" action="{{ url_for('admin.block_product', product_id=item.target.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn-mini-danger">차단하기</button>
+            </form>
+          {% else %}
+            <form method="POST" action="{{ url_for('admin.unblock_product', product_id=item.target.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn-mini">차단 해제</button>
+            </form>
+          {% endif %}
+          <form method="POST" action="{{ url_for('products.delete_product', product_id=item.target.id) }}"
+                onsubmit="return confirm('상품을 완전히 삭제하시겠습니까?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-mini-danger">삭제</button>
+          </form>
+        {% else %}
+          {% if item.target_status == "active" %}
+            <form method="POST" action="{{ url_for('admin.ban_user', user_id=item.target.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn-mini-danger">정지하기</button>
+            </form>
+          {% else %}
+            <form method="POST" action="{{ url_for('admin.unban_user', user_id=item.target.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn-mini">정상화(해제)</button>
+            </form>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">대기중인 신고가 없습니다.</div>
+{% endif %}
+{% endblock %}

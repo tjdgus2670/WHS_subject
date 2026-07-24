@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}찜한 상품 - Tiny Market{% endblock %}
+{% block content %}
+<h2>찜한 상품</h2>
+
+{% if products %}
+<div class="product-grid">
+  {% for product in products %}
+  <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="product-card">
+    <div class="product-thumb">
+      {% if product.images %}
+        <img src="{{ url_for('static', filename='uploads/products/' + product.images[0].filename) }}" alt="">
+      {% else %}
+        <div class="product-thumb-empty">이미지 없음</div>
+      {% endif %}
+    </div>
+    <div class="product-info">
+      <div class="product-title">{{ product.title }}</div>
+      <div class="product-price">{{ "{:,}".format(product.price) }}원</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">찜한 상품이 없습니다.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}회원가입 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>회원가입</h2>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }} {# CSRF 토큰이 여기 자동으로 포함된다 #}
+
+    <div class="form-group">
+      {{ form.username.label }}
+      {{ form.username(type="text", autocomplete="username") }}
+      {% for error in form.username.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.email.label }}
+      {{ form.email(type="email", autocomplete="email") }}
+      {% for error in form.email.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.nickname.label }}
+      {{ form.nickname(type="text") }}
+      {% for error in form.nickname.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.region.label }}
+      {{ form.region(type="text", placeholder="예: 서울시 마포구") }}
+      {% for error in form.region.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.password.label }}
+      {{ form.password(type="password", autocomplete="new-password") }}
+      {% for error in form.password.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.password_confirm.label }}
+      {{ form.password_confirm(type="password", autocomplete="new-password") }}
+      {% for error in form.password_confirm.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    {{ form.submit(class="btn") }}
+  </form>
+  <div class="form-footer">
+    이미 계정이 있으신가요? <a href="{{ url_for('auth.login') }}">로그인</a>
+  </div>
+</div>
+{% endblock %}

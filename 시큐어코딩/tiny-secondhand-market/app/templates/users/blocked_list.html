@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}차단 목록 - Tiny Market{% endblock %}
+{% block content %}
+<h2>차단한 사용자</h2>
+
+{% if blocked_users %}
+<div class="room-list">
+  {% for u in blocked_users %}
+    <div class="room-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <a href="{{ url_for('users.profile', user_id=u.id) }}">{{ u.nickname }}</a>
+      <form method="POST" action="{{ url_for('users.unblock_user', user_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-mini">차단 해제</button>
+      </form>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">차단한 사용자가 없습니다.</div>
+{% endif %}
+{% endblock %}

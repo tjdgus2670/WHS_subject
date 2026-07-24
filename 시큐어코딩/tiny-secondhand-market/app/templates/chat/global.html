@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}동네 전체채팅 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card chat-card">
+  <div class="chat-header"><strong>동네 전체채팅</strong></div>
+
+  <div id="chat-messages" class="chat-messages" data-last-id="{{ messages[-1].id if messages else 0 }}"
+       data-poll-url="{{ url_for('chat.poll_global_messages') }}"
+       data-send-url="{{ url_for('chat.send_global_message') }}">
+    {% for m in messages %}
+      <div class="chat-bubble-row {{ 'mine' if m.is_mine else 'theirs' }}">
+        <div class="chat-bubble">
+          {% if not m.is_mine %}<div class="chat-sender">{{ m.sender_nickname }}</div>{% endif %}
+          <div class="chat-content">{{ m.content }}</div>
+          <div class="chat-time">{{ m.created_at }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form id="chat-form" class="chat-input-row">
+    <input type="text" id="chat-input" maxlength="1000" placeholder="메시지를 입력하세요" autocomplete="off">
+    <button type="submit" class="btn btn-inline">전송</button>
+  </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

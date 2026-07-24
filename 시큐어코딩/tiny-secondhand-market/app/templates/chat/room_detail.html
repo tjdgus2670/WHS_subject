@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ other_user.nickname }}님과의 채팅 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card chat-card">
+  <div class="chat-header">
+    <strong><a href="{{ url_for('users.profile', user_id=other_user.id) }}">{{ other_user.nickname }}</a></strong>
+    {% if room.product %}
+      <span class="text-muted">· {{ room.product.title }}</span>
+    {% endif %}
+    <a href="{{ url_for('reports.report_user', user_id=other_user.id) }}" class="report-link">신고</a>
+  </div>
+
+  <div id="chat-messages" class="chat-messages" data-last-id="{{ messages[-1].id if messages else 0 }}"
+       data-poll-url="{{ url_for('chat.poll_room_messages', room_id=room.id) }}"
+       data-send-url="{{ url_for('chat.send_room_message', room_id=room.id) }}">
+    {% for m in messages %}
+      <div class="chat-bubble-row {{ 'mine' if m.is_mine else 'theirs' }}">
+        <div class="chat-bubble">
+          {% if not m.is_mine %}<div class="chat-sender">{{ m.sender_nickname }}</div>{% endif %}
+          {# Jinja2가 기본으로 이스케이프하므로 content 안에 <script> 등이 있어도 문자 그대로 출력됨 #}
+          <div class="chat-content">{{ m.content }}</div>
+          <div class="chat-time">{{ m.created_at }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form id="chat-form" class="chat-input-row">
+    <input type="text" id="chat-input" maxlength="1000" placeholder="메시지를 입력하세요" autocomplete="off">
+    <button type="submit" class="btn btn-inline">전송</button>
+  </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

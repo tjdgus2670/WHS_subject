@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Tiny Market - 홈{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Tiny Secondhand Shopping Platform</h1>
+  <p>
+    {% if current_user.is_authenticated %}
+      {{ current_user.nickname }}님, 환영합니다. 다음 단계로 상품 등록/조회 기능을 붙일 예정입니다.
+    {% else %}
+      아직 개발 초기 단계입니다. 인증 기능부터 붙이는 중입니다.
+    {% endif %}
+  </p>
+</div>
+{% endblock %}

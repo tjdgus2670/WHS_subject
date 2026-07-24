@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}로그인 - Tiny Market{% endblock %}
+{% block content %}
+<div class="card form-narrow">
+  <h2>로그인</h2>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.username.label }}
+      {{ form.username(type="text", autocomplete="username") }}
+      {% for error in form.username.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.password.label }}
+      {{ form.password(type="password", autocomplete="current-password") }}
+      {% for error in form.password.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+    </div>
+
+    {{ form.submit(class="btn") }}
+  </form>
+  <div class="form-footer">
+    아직 계정이 없으신가요? <a href="{{ url_for('auth.register') }}">회원가입</a>
+  </div>
+</div>
+{% endblock %}

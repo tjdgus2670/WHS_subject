@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.nickname }} - Tiny Market{% endblock %}
+{% block content %}
+<div class="card profile-card">
+  <div class="profile-head">
+    <div class="profile-avatar">
+      {% if profile_user.profile_image %}
+        <img src="{{ url_for('static', filename='uploads/profiles/' + profile_user.profile_image) }}" alt="">
+      {% else %}
+        <div class="profile-avatar-empty">{{ profile_user.nickname[0] }}</div>
+      {% endif %}
+    </div>
+    <div>
+      <h2 style="margin-bottom:2px;">{{ profile_user.nickname }}</h2>
+      <div class="text-muted">
+        {{ profile_user.region or "동네 미설정" }} · 매너온도 {{ "%.1f"|format(profile_user.trust_score) }}°C
+      </div>
+      <div class="text-muted" style="font-size:0.82rem;">
+        가입일 {{ profile_user.created_at.strftime("%Y-%m-%d") }}
+      </div>
+    </div>
+  </div>
+
+  {% if not is_self and current_user.is_authenticated %}
+  <div class="profile-actions">
+    {% if is_blocked_by_me %}
+      <form method="POST" action="{{ url_for('users.unblock_user', user_id=profile_user.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-mini">차단 해제</button>
+      </form>
+    {% else %}
+      <form method="POST" action="{{ url_for('users.block_user', user_id=profile_user.id) }}"
+            onsubmit="return confirm('이 사용자를 차단하시겠습니까? 서로 채팅을 걸 수 없게 됩니다.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-mini-danger">차단하기</button>
+      </form>
+    {% endif %}
+    <a href="{{ url_for('reports.report_user', user_id=profile_user.id) }}" class="btn-mini">신고</a>
+  </div>
+  {% endif %}
+</div>
+
+<h3 style="margin-top:24px;">받은 후기</h3>
+{% if reviews %}
+<div class="report-list">
+  {% for r in reviews %}
+    <div class="report-item">
+      <div class="report-item-head">
+        <strong>{{ r.reviewer.nickname if r.reviewer else "탈퇴한 사용자" }}</strong>
+        <span class="text-muted">{{ "⭐" * r.rating }}</span>
+      </div>
+      {% if r.content %}<div class="report-item-body">{{ r.content }}</div>{% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">아직 받은 후기가 없습니다.</div>
+{% endif %}
+
+<h3 style="margin-top:24px;">판매중인 상품</h3>
+{% if products %}
+<div class="product-grid">
+  {% for product in products %}
+  <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="product-card">
+    <div class="product-thumb">
+      {% if product.images %}
+        <img src="{{ url_for('static', filename='uploads/products/' + product.images[0].filename) }}" alt="">
+      {% else %}
+        <div class="product-thumb-empty">이미지 없음</div>
+      {% endif %}
+    </div>
+    <div class="product-info">
+      <div class="product-title">{{ product.title }}</div>
+      <div class="product-price">{{ "{:,}".format(product.price) }}원</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">등록된 상품이 없습니다.</div>
+{% endif %}
+{% endblock %}
